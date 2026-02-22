@@ -8,6 +8,9 @@ type SidebarContextType = {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  toggleSidebarCollapsed: () => void;
 };
 
 const SidebarContext = createContext<SidebarContextType | null>(null);
@@ -18,6 +21,8 @@ export function useSidebar() {
   return ctx;
 }
 
+const SIDEBAR_COLLAPSED_KEY = "grc-sidebar-collapsed";
+
 export function AppShell({
   children,
   title,
@@ -26,6 +31,27 @@ export function AppShell({
   title?: string;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Hydrate collapsed state from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+      if (stored !== null) {
+        setSidebarCollapsed(stored === "true");
+      }
+    }
+  }, []);
+
+  const toggleSidebarCollapsed = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== "undefined") {
+        localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(next));
+      }
+      return next;
+    });
+  };
 
   // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
@@ -48,6 +74,9 @@ export function AppShell({
         sidebarOpen,
         setSidebarOpen,
         toggleSidebar: () => setSidebarOpen((prev) => !prev),
+        sidebarCollapsed,
+        setSidebarCollapsed,
+        toggleSidebarCollapsed,
       }}
     >
       <div className="flex h-screen overflow-hidden bg-slate-50">

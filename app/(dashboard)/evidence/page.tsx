@@ -7,32 +7,76 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { FileText, ExternalLink } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
+import { AddEvidenceDialog } from "@/components/evidence/add-evidence-dialog";
 
 export default async function EvidencePage() {
-  const evidence = await prisma.evidence.findMany({
-    include: {
-      control: { include: { framework: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [evidence, controls] = await Promise.all([
+    prisma.evidence.findMany({
+      include: {
+        control: { include: { framework: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.control.findMany({
+      include: { framework: true },
+      orderBy: { code: "asc" },
+    }),
+  ]);
+
+  const controlOptions = controls.map((c) => ({
+    id: c.id,
+    code: c.code,
+    title: c.title,
+    frameworkName: c.framework.name,
+  }));
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-          Evidence
-        </h1>
-        <p className="mt-1 text-sm text-slate-600 sm:text-base">
-          Evidence artifacts linked to controls
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+            Evidence
+          </h1>
+          <p className="mt-1 text-sm text-slate-600 sm:text-base">
+            Evidence artifacts linked to controls
+          </p>
+        </div>
+        {controlOptions.length > 0 && evidence.length > 0 && (
+          <AddEvidenceDialog
+            controls={controlOptions}
+            trigger={
+              <Button size="sm" className="shrink-0">
+                Add Evidence
+              </Button>
+            }
+          />
+        )}
       </div>
 
+      {evidence.length === 0 ? (
+        <EmptyState
+          icon={FileText}
+          title="No evidence yet"
+          description="Add evidence to controls to support your compliance assessments."
+          action={
+            controlOptions.length > 0 ? (
+              <AddEvidenceDialog
+                controls={controlOptions}
+                trigger={<Button size="sm">Add Evidence</Button>}
+              />
+            ) : undefined
+          }
+          secondaryAction={{ label: "View Controls", href: "/controls" }}
+        />
+      ) : (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {evidence.map((e) => (
           <Card
             key={e.id}
-            className="overflow-hidden border border-slate-200 shadow-sm transition-shadow hover:shadow-md hover:border-slate-300"
+            className="overflow-hidden border border-slate-200 shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow-md"
           >
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
               <div className="flex size-10 items-center justify-center rounded-lg bg-slate-100">
@@ -62,15 +106,6 @@ export default async function EvidencePage() {
           </Card>
         ))}
       </div>
-
-      {evidence.length === 0 && (
-        <Card className="flex flex-col items-center justify-center border-slate-200 py-16">
-          <FileText className="mb-4 size-12 text-slate-300" />
-          <CardTitle className="text-slate-600">No evidence yet</CardTitle>
-          <CardDescription className="mt-1 text-center">
-            Add evidence to controls through assessments
-          </CardDescription>
-        </Card>
       )}
     </div>
   );

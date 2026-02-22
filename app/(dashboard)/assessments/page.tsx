@@ -11,7 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ClipboardCheck } from "lucide-react";
+import { ChevronRight, ClipboardCheck, Plus } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
+import { CreateAssessmentDialog } from "@/components/assessments/create-assessment-dialog";
 
 const statusVariant = {
   NOT_STARTED: "secondary",
@@ -20,23 +22,39 @@ const statusVariant = {
 } as const;
 
 export default async function AssessmentsPage() {
-  const assessments = await prisma.assessment.findMany({
-    include: {
-      organization: true,
-      findings: { select: { status: true } },
-    },
-    orderBy: { updatedAt: "desc" },
-  });
+  const [assessments, organizations] = await Promise.all([
+    prisma.assessment.findMany({
+      include: {
+        organization: true,
+        findings: { select: { status: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+    }),
+    prisma.organization.findMany({ select: { id: true, name: true } }),
+  ]);
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-          Assessments
-        </h1>
-        <p className="mt-1 text-sm text-slate-600 sm:text-base">
-          View and manage your compliance assessments
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+            Assessments
+          </h1>
+          <p className="mt-1 text-sm text-slate-600 sm:text-base">
+            View and manage your compliance assessments
+          </p>
+        </div>
+        {organizations.length > 0 && assessments.length > 0 && (
+          <CreateAssessmentDialog
+            organizations={organizations}
+            trigger={
+              <Button size="sm" className="shrink-0">
+                <Plus className="mr-2 size-4" />
+                Create Assessment
+              </Button>
+            }
+          />
+        )}
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {assessments.map((a) => {
@@ -48,7 +66,7 @@ export default async function AssessmentsPage() {
           return (
             <Card
               key={a.id}
-              className="overflow-hidden border border-slate-200 shadow-sm transition-all hover:shadow-md hover:border-slate-300"
+              className="overflow-hidden border border-slate-200 shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow-md"
             >
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                 <CardTitle className="text-base text-slate-900">{a.name}</CardTitle>
@@ -87,13 +105,19 @@ export default async function AssessmentsPage() {
         })}
       </div>
       {assessments.length === 0 && (
-        <Card className="flex flex-col items-center justify-center border-slate-200 py-16">
-          <ClipboardCheck className="mb-4 size-12 text-slate-300" />
-          <CardTitle className="text-slate-600">No assessments yet</CardTitle>
-          <CardDescription className="mt-1 text-center text-slate-500">
-            Run your seed to create demo data
-          </CardDescription>
-        </Card>
+        <EmptyState
+          icon={ClipboardCheck}
+          title="No assessments yet"
+          description="Create your first assessment to start tracking compliance controls and evidence."
+          action={
+            organizations.length > 0 ? (
+              <CreateAssessmentDialog
+                organizations={organizations}
+                trigger={<Button size="sm">Create Assessment</Button>}
+              />
+            ) : undefined
+          }
+        />
       )}
     </div>
   );

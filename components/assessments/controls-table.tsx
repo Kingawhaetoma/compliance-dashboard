@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 import { updateFindingStatus } from "@/app/actions/assessment";
 import type { ControlStatus } from "@/generated/prisma/client";
 
@@ -46,10 +47,40 @@ export function ControlsTable({
   assessmentId: string;
 }) {
   async function handleStatusChange(findingId: string, value: string) {
-    await updateFindingStatus(
-      findingId,
-      value as ControlStatus,
-      assessmentId
+    try {
+      await updateFindingStatus(
+        findingId,
+        value as ControlStatus,
+        assessmentId
+      );
+      toast.success("Status updated");
+    } catch {
+      toast.error("Failed to update status");
+    }
+  }
+
+  if (rows.length === 0) {
+    return (
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6">
+          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">Assessment Controls</h2>
+          <p className="text-xs text-slate-500 sm:text-sm">
+            Control status and implementation progress
+          </p>
+        </div>
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-sm font-medium text-slate-600">No controls in this assessment yet</p>
+          <p className="mt-1 max-w-sm text-sm text-slate-500">
+            Add controls from your frameworks to start tracking compliance.
+          </p>
+          <a
+            href="/controls"
+            className="mt-4 inline-flex items-center text-sm font-medium text-primary hover:underline"
+          >
+            Browse controls
+          </a>
+        </div>
+      </div>
     );
   }
 

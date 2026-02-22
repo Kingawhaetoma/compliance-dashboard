@@ -29,7 +29,7 @@ export default async function FrameworksPage() {
         {frameworks.map((f) => (
           <Card
             key={f.id}
-            className="overflow-hidden border border-slate-200 shadow-sm transition-all hover:shadow-md hover:border-slate-300"
+            className="overflow-hidden border border-slate-200 shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow-md"
           >
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
               <CardTitle className="text-base text-slate-900">{f.name}</CardTitle>

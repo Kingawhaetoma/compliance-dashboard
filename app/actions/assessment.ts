@@ -21,3 +21,22 @@ export async function updateFindingStatus(
   revalidatePath(`/assessments/${assessmentId}`);
   revalidatePath("/dashboard");
 }
+
+export type CreateAssessmentInput = {
+  name: string;
+  organizationId: string;
+};
+
+export async function createAssessment(input: CreateAssessmentInput) {
+  const assessment = await prisma.assessment.create({
+    data: {
+      name: input.name,
+      organizationId: input.organizationId,
+      status: "NOT_STARTED",
+      startDate: new Date(),
+    },
+  });
+  revalidatePath("/assessments");
+  revalidatePath("/dashboard");
+  return { id: assessment.id };
+}

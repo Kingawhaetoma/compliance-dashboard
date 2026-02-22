@@ -67,7 +67,7 @@ export function KPICards({ data }: { data: KPIData }) {
         return (
           <Card
             key={card.key}
-            className={`overflow-hidden border shadow-sm transition-shadow hover:shadow-md ${card.className}`}
+            className={`overflow-hidden border shadow-sm transition-all duration-200 hover:shadow-md ${card.className}`}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-600">

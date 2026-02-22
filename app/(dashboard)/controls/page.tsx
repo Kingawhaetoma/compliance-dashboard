@@ -8,14 +8,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/empty-state";
+import { AddControlDialog } from "@/components/controls/add-control-dialog";
+import { Gauge } from "lucide-react";
 
 export default async function ControlsPage() {
-  const controls = await prisma.control.findMany({
+  const [controls, frameworks] = await Promise.all([
+    prisma.control.findMany({
     include: {
       framework: true,
     },
-  });
+  }),
+    prisma.framework.findMany({
+      select: { id: true, name: true, key: true },
+      orderBy: { key: "asc" },
+    }),
+  ]);
 
   const findings = await prisma.finding.findMany({
     select: { controlId: true, status: true, risk: true },
@@ -60,15 +70,43 @@ export default async function ControlsPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-          Controls
-        </h1>
-        <p className="mt-1 text-sm text-slate-600 sm:text-base">
-          All compliance controls across frameworks
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+            Controls
+          </h1>
+          <p className="mt-1 text-sm text-slate-600 sm:text-base">
+            All compliance controls across frameworks
+          </p>
+        </div>
+        {frameworks.length > 0 && controls.length > 0 && (
+          <AddControlDialog
+            frameworks={frameworks}
+            trigger={
+              <Button size="sm" className="shrink-0">
+                Add Control
+              </Button>
+            }
+          />
+        )}
       </div>
 
+      {controls.length === 0 ? (
+        <EmptyState
+          icon={Gauge}
+          title="No controls yet"
+          description="Add controls from your frameworks or import them from a compliance standard."
+          action={
+            frameworks.length > 0 ? (
+              <AddControlDialog
+                frameworks={frameworks}
+                trigger={<Button size="sm">Add Control</Button>}
+              />
+            ) : undefined
+          }
+          secondaryAction={{ label: "View Frameworks", href: "/frameworks" }}
+        />
+      ) : (
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6">
           <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
@@ -146,6 +184,7 @@ export default async function ControlsPage() {
           </Table>
         </div>
       </div>
+      )}
     </div>
   );
 }
