@@ -1,0 +1,3 @@
+cd compliance-demo
+npm install @prisma/client prisma recharts
+npx prisma init --datasource-provider sqlite
