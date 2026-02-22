@@ -18,7 +18,7 @@ export default async function DashboardPage() {
       },
     }),
     prisma.finding.findMany({
-      select: { status: true, controlId: true },
+      select: { status: true, controlId: true, risk: true },
     }),
     prisma.framework.findMany({
       include: { controls: { select: { id: true } } },
