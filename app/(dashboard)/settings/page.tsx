@@ -11,8 +11,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Settings</h1>
+        <p className="text-sm text-muted-foreground sm:text-base">
           Configure your compliance workspace
         </p>
       </div>

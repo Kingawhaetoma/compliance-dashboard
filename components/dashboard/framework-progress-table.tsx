@@ -26,12 +26,13 @@ export function FrameworkProgressTable({
 }) {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-4">
-        <h2 className="text-lg font-semibold text-slate-900">Framework Progress</h2>
-        <p className="text-sm text-slate-500">
+      <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6">
+        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">Framework Progress</h2>
+        <p className="text-xs text-slate-500 sm:text-sm">
           Implementation status across compliance frameworks
         </p>
       </div>
+      <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="border-slate-200 hover:bg-transparent">
@@ -77,6 +78,7 @@ export function FrameworkProgressTable({
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

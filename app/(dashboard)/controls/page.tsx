@@ -59,22 +59,22 @@ export default async function ControlsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
           Controls
         </h1>
-        <p className="mt-1 text-slate-600">
+        <p className="mt-1 text-sm text-slate-600 sm:text-base">
           All compliance controls across frameworks
         </p>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-4">
-          <h2 className="text-lg font-semibold text-slate-900">
+        <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6">
+          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
             Control Library
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-xs text-slate-500 sm:text-sm">
             {controls.length} controls across {new Set(controls.map((c) => c.frameworkId)).size} frameworks
           </p>
         </div>

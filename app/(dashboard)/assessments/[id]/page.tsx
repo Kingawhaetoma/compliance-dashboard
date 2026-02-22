@@ -47,18 +47,18 @@ export default async function AssessmentPage({
     totalCount > 0 ? Math.round((implementedCount / totalCount) * 100) : 0;
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
+    <div className="space-y-6 sm:space-y-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <Button variant="ghost" size="icon" asChild className="shrink-0 self-start">
           <Link href="/assessments">
             <ArrowLeft className="size-5 text-slate-600" />
           </Link>
         </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
             {assessment.name}
           </h1>
-          <div className="mt-1 flex items-center gap-3 text-sm text-slate-600">
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600 sm:gap-3">
             <span>{assessment.organization.name}</span>
             <Badge
               variant="outline"

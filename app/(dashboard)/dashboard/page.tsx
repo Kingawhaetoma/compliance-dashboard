@@ -89,12 +89,12 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
           GRC Dashboard
         </h1>
-        <p className="mt-1 text-slate-600">
+        <p className="mt-1 text-sm text-slate-600 sm:text-base">
           Governance, Risk & Compliance overview
         </p>
       </div>
@@ -102,14 +102,14 @@ export default async function DashboardPage() {
       <KPICards data={kpiData} />
 
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-slate-900">
+        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
           Framework Progress
         </h2>
         <FrameworkProgressTable frameworks={frameworkProgress} />
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-slate-900">
+        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
           Controls Overview
         </h2>
         <DashboardControlsTable controls={controlRows} />
