@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum AssessmentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETE
+}
+
+enum ControlStatus {
+  NOT_APPLICABLE
+  NOT_IMPLEMENTED
+  PARTIALLY_IMPLEMENTED
+  IMPLEMENTED
+}
+
+model Organization {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  assessments Assessment[]
+}
+
+model Framework {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g., HIPAA, NIST, SOC2, ISO27001, CIS
+  name      String
+  version   String?
+  createdAt DateTime @default(now())
+  controls  Control[]
+}
+
+model Control {
+  id          String      @id @default(cuid())
+  frameworkId String
+  code        String      // e.g., "164.310(d)(1)" or "PR.AC-1"
+  title       String
+  description String?
+  domain      String?     // optional grouping
+  createdAt   DateTime    @default(now())
+
+  framework   Framework   @relation(fields: [frameworkId], references: [id])
+  evidence    Evidence[]
+  findings    Finding[]
+}
+
+model Assessment {
+  id             String            @id @default(cuid())
+  organizationId String
+  name           String
+  status         AssessmentStatus  @default(NOT_STARTED)
+  startDate      DateTime? 
+  endDate        DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  organization   Organization      @relation(fields: [organizationId], references: [id])
+  findings       Finding[]
+}
+
+model Finding {
+  id            String        @id @default(cuid())
+  assessmentId  String
+  controlId     String
+  status        ControlStatus  @default(NOT_IMPLEMENTED)
+  notes         String?
+  risk          String?       // Low/Med/High text for demo
+  owner         String?
+  dueDate       DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  assessment    Assessment    @relation(fields: [assessmentId], references: [id])
+  control       Control       @relation(fields: [controlId], references: [id])
+  evidenceLinks EvidenceLink[]
+}
+
+model Evidence {
+  id          String   @id @default(cuid())
+  controlId   String
+  title       String
+  url         String?  // link to doc/screenshot/etc
+  createdAt   DateTime @default(now())
+
+  control     Control  @relation(fields: [controlId], references: [id])
+  links       EvidenceLink[]
+}
+
+model EvidenceLink {
+  id         String   @id @default(cuid())
+  findingId  String
+  evidenceId String
+
+  finding    Finding  @relation(fields: [findingId], references: [id])
+  evidence   Evidence @relation(fields: [evidenceId], references: [id])
+
+  @@unique([findingId, evidenceId])
+}
