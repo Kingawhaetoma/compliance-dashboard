@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CyberTackle | Compliance Demo",
-  description: "Compliance framework and assessment management",
+  title: "GRC Platform | Governance, Risk & Compliance",
+  description: "Professional GRC dashboard for compliance management",
 };
 
 export default function RootLayout({

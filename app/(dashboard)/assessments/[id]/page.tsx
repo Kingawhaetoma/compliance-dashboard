@@ -6,12 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
-const assessmentStatusVariant = {
-  NOT_STARTED: "secondary",
-  IN_PROGRESS: "default",
-  COMPLETE: "outline",
-} as const;
-
 export default async function AssessmentPage({
   params,
 }: {
@@ -53,22 +47,27 @@ export default async function AssessmentPage({
     totalCount > 0 ? Math.round((implementedCount / totalCount) * 100) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/assessments">
-            <ArrowLeft className="size-5" />
+            <ArrowLeft className="size-5 text-slate-600" />
           </Link>
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             {assessment.name}
           </h1>
-          <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
+          <div className="mt-1 flex items-center gap-3 text-sm text-slate-600">
             <span>{assessment.organization.name}</span>
             <Badge
-              variant={
-                assessmentStatusVariant[assessment.status] ?? "secondary"
+              variant="outline"
+              className={
+                assessment.status === "COMPLETE"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : assessment.status === "IN_PROGRESS"
+                    ? "border-blue-200 bg-blue-50 text-blue-700"
+                    : "border-slate-200 bg-slate-50 text-slate-600"
               }
             >
               {assessment.status.replace("_", " ")}

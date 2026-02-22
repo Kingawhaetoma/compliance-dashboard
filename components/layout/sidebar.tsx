@@ -6,33 +6,34 @@ import {
   LayoutDashboard,
   ClipboardCheck,
   Shield,
-  Settings,
+  Gauge,
+  FileCheck,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/assessments", label: "Assessments", icon: ClipboardCheck },
   { href: "/frameworks", label: "Frameworks", icon: Shield },
+  { href: "/controls", label: "Controls", icon: Gauge },
+  { href: "/assessments", label: "Assessments", icon: ClipboardCheck },
+  { href: "/evidence", label: "Evidence", icon: FileCheck },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-full w-56 flex-col border-r border-sidebar-border bg-sidebar">
-      <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-            <Shield className="size-5 text-primary" />
-          </div>
-          <span className="font-semibold text-sidebar-foreground">
-            CyberTackle
-          </span>
+    <aside className="flex h-full w-60 flex-col border-r border-sidebar-border bg-white shadow-sm">
+      <div className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-5">
+        <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+          <Shield className="size-5" />
         </div>
+        <span className="text-base font-semibold tracking-tight text-slate-900">
+          GRC Platform
+        </span>
       </div>
-      <nav className="flex-1 space-y-1 p-3">
+      <nav className="flex-1 space-y-0.5 p-4">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =
@@ -43,27 +44,17 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               )}
             >
-              <Icon className="size-5 shrink-0 opacity-80" />
+              <Icon className="size-[18px] shrink-0" />
               {item.label}
             </Link>
           );
         })}
-        <div className="pt-4">
-          <div className="my-2 h-px bg-sidebar-border" />
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-          >
-            <Settings className="size-5 shrink-0" />
-            Settings
-          </Link>
-        </div>
       </nav>
     </aside>
   );

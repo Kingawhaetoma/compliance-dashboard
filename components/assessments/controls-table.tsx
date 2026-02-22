@@ -54,46 +54,46 @@ export function ControlsTable({
   }
 
   return (
-    <div className="rounded-xl border bg-card">
-      <div className="border-b px-6 py-4">
-        <h2 className="text-lg font-semibold">Assessment Controls</h2>
-        <p className="text-sm text-muted-foreground">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-200 bg-slate-50/80 px-6 py-4">
+        <h2 className="text-lg font-semibold text-slate-900">Assessment Controls</h2>
+        <p className="text-sm text-slate-500">
           Control status and implementation progress
         </p>
       </div>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Control</TableHead>
-            <TableHead>Domain</TableHead>
-            <TableHead>Framework</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Risk</TableHead>
-            <TableHead>Owner</TableHead>
-            <TableHead className="max-w-[200px]">Notes</TableHead>
+          <TableRow className="border-slate-200 hover:bg-transparent">
+            <TableHead className="text-slate-600">Control</TableHead>
+            <TableHead className="text-slate-600">Domain</TableHead>
+            <TableHead className="text-slate-600">Framework</TableHead>
+            <TableHead className="text-slate-600">Status</TableHead>
+            <TableHead className="text-slate-600">Risk</TableHead>
+            <TableHead className="text-slate-600">Owner</TableHead>
+            <TableHead className="max-w-[200px] text-slate-600">Notes</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {rows.map((row) => (
-            <TableRow key={row.findingId}>
+            <TableRow key={row.findingId} className="border-slate-100 hover:bg-slate-50/50">
               <TableCell>
-                <div className="font-mono text-sm font-medium">
+                <div className="font-mono text-sm font-medium text-slate-900">
                   {row.controlCode}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-slate-600">
                   {row.controlTitle}
                 </div>
               </TableCell>
-              <TableCell className="text-muted-foreground">
+              <TableCell className="text-slate-600">
                 {row.domain ?? "—"}
               </TableCell>
-              <TableCell className="text-sm">{row.frameworkName}</TableCell>
+              <TableCell className="text-sm text-slate-600">{row.frameworkName}</TableCell>
               <TableCell>
                 <Select
                   value={row.status}
                   onValueChange={(v) => handleStatusChange(row.findingId, v)}
                 >
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-[140px] border-slate-200">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -110,12 +110,13 @@ export function ControlsTable({
               <TableCell>
                 {row.risk ? (
                   <Badge
-                    variant={
+                    variant="outline"
+                    className={
                       row.risk.toLowerCase() === "high"
-                        ? "destructive"
+                        ? "border-red-200 bg-red-50 text-red-700"
                         : row.risk.toLowerCase() === "medium"
-                          ? "secondary"
-                          : "outline"
+                          ? "border-amber-200 bg-amber-50 text-amber-700"
+                          : "border-emerald-200 bg-emerald-50 text-emerald-700"
                     }
                   >
                     {row.risk}
@@ -124,10 +125,10 @@ export function ControlsTable({
                   "—"
                 )}
               </TableCell>
-              <TableCell className="text-muted-foreground">
+              <TableCell className="text-slate-600">
                 {row.owner ?? "—"}
               </TableCell>
-              <TableCell className="max-w-[200px] truncate text-muted-foreground">
+              <TableCell className="max-w-[200px] truncate text-slate-600">
                 {row.notes ?? "—"}
               </TableCell>
             </TableRow>

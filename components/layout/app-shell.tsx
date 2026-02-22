@@ -9,11 +9,11 @@ export function AppShell({
   title?: string;
 }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header title={title} />
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+        <main className="flex-1 overflow-auto bg-slate-50 p-8">{children}</main>
       </div>
     </div>
   );
