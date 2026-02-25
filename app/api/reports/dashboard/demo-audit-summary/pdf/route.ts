@@ -1,4 +1,8 @@
-import PDFDocument from "pdfkit";
+// Use the standalone build so font metric assets are bundled in serverless environments (Vercel),
+// avoiding runtime ENOENT errors for Helvetica.afm.
+// @ts-expect-error - pdfkit does not ship type declarations for the standalone bundle path
+import PDFDocument from "pdfkit/js/pdfkit.standalone.js";
+import type PDFKit from "pdfkit";
 import { cookies } from "next/headers";
 
 import { prisma } from "@/lib/prisma";
