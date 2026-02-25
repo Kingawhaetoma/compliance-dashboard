@@ -305,7 +305,7 @@ async function seedProfileWorkspace(tx: Tx, profile: DemoProfile) {
                   : null,
           submittedAt: reviewStatus === "DRAFT" ? null : addDays(plan.startOffsetDays + 2 + (index % 5)),
           reviewedAt:
-            reviewStatus === "APPROVED" || reviewStatus === "REJECTED" || reviewStatus === "NEEDS_INFO"
+            reviewStatus === "APPROVED" || reviewStatus === "NEEDS_INFO"
               ? addDays(plan.startOffsetDays + 5 + (index % 6))
               : null,
         },
@@ -405,7 +405,7 @@ async function seedProfileWorkspace(tx: Tx, profile: DemoProfile) {
       const needsPoam =
         status !== "IMPLEMENTED" &&
         status !== "NOT_APPLICABLE" &&
-        (risk !== null || reviewStatus === "NEEDS_INFO" || reviewStatus === "REJECTED");
+        (risk !== null || reviewStatus === "NEEDS_INFO");
 
       if (needsPoam) {
         const poamStatus = seededPoamStatus(globalIndex, status, reviewStatus);

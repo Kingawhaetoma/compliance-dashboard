@@ -156,11 +156,9 @@ export async function GET() {
   const topFindings = auditFindings
     .slice()
     .sort((a, b) => {
-      const severityDelta =
-        (a.severity === "HIGH" ? 3 : a.severity === "MEDIUM" ? 2 : 1) <
-        (b.severity === "HIGH" ? 3 : b.severity === "MEDIUM" ? 2 : 1)
-          ? 1
-          : -1;
+      const severityWeight = (severity: "LOW" | "MEDIUM" | "HIGH") =>
+        severity === "HIGH" ? 3 : severity === "MEDIUM" ? 2 : 1;
+      const severityDelta = severityWeight(b.severity) - severityWeight(a.severity);
       if (severityDelta !== 0) return severityDelta;
       return b.updatedAt.getTime() - a.updatedAt.getTime();
     })
@@ -280,7 +278,7 @@ export async function GET() {
   const pdfBuffer = await buildPdfBuffer(doc);
   const filename = `demo-audit-summary-${activeProfile.id}-${timestamp.toISOString().slice(0, 10)}.pdf`;
 
-  return new Response(pdfBuffer, {
+  return new Response(new Uint8Array(pdfBuffer), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
@@ -289,4 +287,3 @@ export async function GET() {
     },
   });
 }
-

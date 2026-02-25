@@ -793,9 +793,7 @@ async function seedAssessmentsAndFindings(
           reviewerNotes:
             reviewStatus === "NEEDS_INFO"
               ? "Please provide stronger evidence and a current policy/procedure artifact."
-              : reviewStatus === "REJECTED"
-                ? "Submission does not satisfy control intent; remediation evidence required."
-                : reviewStatus === "APPROVED"
+              : reviewStatus === "APPROVED"
                   ? "Reviewed and accepted by customer auditor."
                   : reviewStatus === "UNDER_REVIEW"
                     ? "Queued for reviewer validation."
@@ -803,7 +801,7 @@ async function seedAssessmentsAndFindings(
           dueDate,
           submittedAt: reviewStatus === "DRAFT" ? null : addDays(plan.startOffsetDays + 2 + (index % 6)),
           reviewedAt:
-            reviewStatus === "APPROVED" || reviewStatus === "REJECTED" || reviewStatus === "NEEDS_INFO"
+            reviewStatus === "APPROVED" || reviewStatus === "NEEDS_INFO"
               ? addDays(plan.startOffsetDays + 5 + (index % 8))
               : null,
         },
@@ -821,9 +819,7 @@ async function seedAssessmentsAndFindings(
           reviewerNotes:
             reviewStatus === "NEEDS_INFO"
               ? "Please provide stronger evidence and a current policy/procedure artifact."
-              : reviewStatus === "REJECTED"
-                ? "Submission does not satisfy control intent; remediation evidence required."
-                : reviewStatus === "APPROVED"
+              : reviewStatus === "APPROVED"
                   ? "Reviewed and accepted by customer auditor."
                   : reviewStatus === "UNDER_REVIEW"
                     ? "Queued for reviewer validation."
@@ -831,7 +827,7 @@ async function seedAssessmentsAndFindings(
           dueDate,
           submittedAt: reviewStatus === "DRAFT" ? null : addDays(plan.startOffsetDays + 2 + (index % 6)),
           reviewedAt:
-            reviewStatus === "APPROVED" || reviewStatus === "REJECTED" || reviewStatus === "NEEDS_INFO"
+            reviewStatus === "APPROVED" || reviewStatus === "NEEDS_INFO"
               ? addDays(plan.startOffsetDays + 5 + (index % 8))
               : null,
         },
@@ -961,7 +957,7 @@ async function seedAssessmentsAndFindings(
       const needsPoam =
         status !== "IMPLEMENTED" &&
         status !== "NOT_APPLICABLE" &&
-        (risk !== null || reviewStatus === "NEEDS_INFO" || reviewStatus === "REJECTED");
+        (risk !== null || reviewStatus === "NEEDS_INFO");
 
       if (needsPoam) {
         const poamTitle = `${control.code} remediation`;

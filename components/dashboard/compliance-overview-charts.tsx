@@ -12,7 +12,6 @@ import {
   PieChart,
   ResponsiveContainer,
   Tooltip,
-  type TooltipProps,
   XAxis,
   YAxis,
 } from "recharts";
@@ -98,7 +97,10 @@ function ChartTooltip({
   payload,
   label,
   valueFormatter,
-}: TooltipProps<number, string> & {
+}: {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string | number;
   valueFormatter?: (item: TooltipPayload) => { label: string; value: string; meta?: string };
 }) {
   if (!active || !payload?.length) return null;
@@ -380,4 +382,3 @@ export function ComplianceOverviewCharts({
     </section>
   );
 }
-
