@@ -18,7 +18,8 @@ This platform allows organizations to track compliance across major frameworks i
 
 # Screenshots
 
-<img width="2922" height="1636" alt="image" src="https://github.com/user-attachments/assets/4af20e70-429c-4e21-89e7-e11074ef4086" />
+
+<img width="1920" height="957" alt="image" src="https://github.com/user-attachments/assets/0be30846-39a1-4c79-aece-931916f9a85f" />
 
 
 ---
