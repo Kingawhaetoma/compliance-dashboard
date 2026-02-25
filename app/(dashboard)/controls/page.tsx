@@ -1,4 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import { MetricCard, RiskBadge, SectionCard, StatusBadge } from "@/components/compliance/dashboard-ui";
+import { PageCallout, PageHero, PageStack } from "@/components/compliance/page-chrome";
 import {
   Table,
   TableBody,
@@ -7,12 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { AddControlDialog } from "@/components/controls/add-control-dialog";
-import { Gauge } from "lucide-react";
+import { CheckCircle2, Gauge, Layers, ShieldAlert } from "lucide-react";
 
 export default async function ControlsPage() {
   const [controls, frameworks] = await Promise.all([
@@ -55,41 +56,75 @@ export default async function ControlsPage() {
     }
   }
 
-  const statusStyles: Record<string, string> = {
-    IMPLEMENTED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    PARTIALLY_IMPLEMENTED: "bg-amber-100 text-amber-800 border-amber-200",
-    NOT_IMPLEMENTED: "bg-red-100 text-red-800 border-red-200",
-    NOT_APPLICABLE: "bg-slate-100 text-slate-600 border-slate-200",
-  };
-
-  const riskStyles: Record<string, string> = {
-    Low: "bg-emerald-100 text-emerald-700",
-    Medium: "bg-amber-100 text-amber-700",
-    High: "bg-red-100 text-red-700",
-  };
+  const frameworkCount = new Set(controls.map((control) => control.frameworkId)).size;
+  const domainCount = new Set(controls.map((control) => control.domain ?? "Uncategorized")).size;
+  const implementedCount = [...statusByControl.values()].filter(
+    (meta) => meta.status === "IMPLEMENTED"
+  ).length;
+  const openHighRiskCount = [...statusByControl.values()].filter(
+    (meta) =>
+      meta.risk?.toLowerCase() === "high" &&
+      !["IMPLEMENTED", "NOT_APPLICABLE"].includes(meta.status)
+  ).length;
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-            Controls
-          </h1>
-          <p className="mt-1 text-sm text-slate-600 sm:text-base">
-            All compliance controls across frameworks
-          </p>
-        </div>
-        {frameworks.length > 0 && controls.length > 0 && (
-          <AddControlDialog
-            frameworks={frameworks}
-            trigger={
-              <Button size="sm" className="shrink-0">
-                Add Control
-              </Button>
-            }
+    <PageStack>
+      <PageHero
+        badge="Control library"
+        badgeIcon={Gauge}
+        title="Controls"
+        description="All compliance controls across frameworks, with summarized implementation and risk signals."
+        chips={[
+          { label: `${controls.length} controls`, tone: "info" },
+          { label: `${frameworkCount} frameworks` },
+          { label: `${domainCount} domains` },
+        ]}
+        actions={
+          frameworks.length > 0 && controls.length > 0 ? (
+            <AddControlDialog
+              frameworks={frameworks}
+              trigger={
+                <Button size="sm" className="shrink-0">
+                  Add Control
+                </Button>
+              }
+            />
+          ) : undefined
+        }
+      />
+
+      {controls.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <MetricCard
+            label="Total Controls"
+            value={controls.length}
+            helper="Across all loaded frameworks"
+            icon={Layers}
+            tone="slate"
           />
-        )}
-      </div>
+          <MetricCard
+            label="Frameworks"
+            value={frameworkCount}
+            helper="Frameworks represented in control library"
+            icon={Gauge}
+            tone="sky"
+          />
+          <MetricCard
+            label="Implemented"
+            value={implementedCount}
+            helper="Controls with at least one implemented finding"
+            icon={CheckCircle2}
+            tone="emerald"
+          />
+          <MetricCard
+            label="Open High Risk"
+            value={openHighRiskCount}
+            helper="High-risk controls not fully implemented"
+            icon={ShieldAlert}
+            tone={openHighRiskCount > 0 ? "rose" : "emerald"}
+          />
+        </div>
+      ) : null}
 
       {controls.length === 0 ? (
         <EmptyState
@@ -107,84 +142,69 @@ export default async function ControlsPage() {
           secondaryAction={{ label: "View Frameworks", href: "/frameworks" }}
         />
       ) : (
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6">
-          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
-            Control Library
-          </h2>
-          <p className="text-xs text-slate-500 sm:text-sm">
-            {controls.length} controls across {new Set(controls.map((c) => c.frameworkId)).size} frameworks
-          </p>
-        </div>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-slate-200 hover:bg-transparent">
-                <TableHead className="text-slate-600">Code</TableHead>
-                <TableHead className="text-slate-600">Title</TableHead>
-                <TableHead className="text-slate-600">Framework</TableHead>
-                <TableHead className="text-slate-600">Domain</TableHead>
-                <TableHead className="text-slate-600">Status</TableHead>
-                <TableHead className="text-slate-600">Risk</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {controls.map((c) => {
-                const meta = statusByControl.get(c.id) ?? {
-                  status: "NOT_IMPLEMENTED",
-                  risk: null as string | null,
-                };
-                return (
-                  <TableRow
-                    key={c.id}
-                    className="border-slate-100 transition-colors hover:bg-slate-50/50"
-                  >
-                    <TableCell className="font-mono text-sm font-medium text-slate-900">
-                      {c.code}
-                    </TableCell>
-                    <TableCell className="max-w-[320px] text-slate-700">
-                      {c.title}
-                    </TableCell>
-                    <TableCell className="text-slate-600">
-                      {c.framework.name}
-                    </TableCell>
-                    <TableCell className="text-slate-500">
-                      {c.domain ?? "—"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "font-medium",
-                          statusStyles[meta.status] ?? "bg-slate-100 text-slate-700"
-                        )}
-                      >
-                        {meta.status.replace(/_/g, " ")}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {meta.risk ? (
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            "font-medium",
-                            riskStyles[meta.risk] ?? "bg-slate-100 text-slate-600"
-                          )}
-                        >
-                          {meta.risk}
-                        </Badge>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+        <SectionCard
+          title="Control Library"
+          description={`${controls.length} controls across ${frameworkCount} frameworks`}
+        >
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-slate-200 hover:bg-transparent">
+                  <TableHead className="text-slate-600">Code</TableHead>
+                  <TableHead className="text-slate-600">Title</TableHead>
+                  <TableHead className="text-slate-600">Framework</TableHead>
+                  <TableHead className="text-slate-600">Domain</TableHead>
+                  <TableHead className="text-slate-600">Status</TableHead>
+                  <TableHead className="text-slate-600">Risk</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {controls.map((c) => {
+                  const meta = statusByControl.get(c.id) ?? {
+                    status: "NOT_IMPLEMENTED",
+                    risk: null as string | null,
+                  };
+                  return (
+                    <TableRow
+                      key={c.id}
+                      className="border-slate-100 transition-colors hover:bg-slate-50/50"
+                    >
+                      <TableCell className="font-mono text-sm font-medium text-slate-900">
+                        <Link href={`/controls/${c.id}`} className="hover:underline">
+                          {c.code}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="max-w-[320px] text-slate-700">
+                        <Link href={`/controls/${c.id}`} className="hover:underline">
+                          {c.title}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="text-slate-600">
+                        {c.framework.name}
+                      </TableCell>
+                      <TableCell className="text-slate-500">
+                        {c.domain ?? "—"}
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={meta.status} />
+                      </TableCell>
+                      <TableCell>
+                        <RiskBadge risk={meta.risk} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </SectionCard>
       )}
-    </div>
+
+      <PageCallout>
+        Controls in this library are reused by the New Audit Wizard to generate
+        assessment scope. Add or extend controls here before creating production
+        audits.
+      </PageCallout>
+    </PageStack>
   );
 }
