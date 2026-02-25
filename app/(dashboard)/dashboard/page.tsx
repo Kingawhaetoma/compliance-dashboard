@@ -106,142 +106,130 @@ export default async function DashboardPage() {
     select: { id: true },
   });
 
-  const [
-    controls,
-    frameworks,
-    findingsSummary,
-    controlResponsesSummary,
-    recentAssessmentsRaw,
-    recentEvidenceSubmissionsRaw,
-    recentLegacyEvidenceRaw,
-    recentControlResponsesRaw,
-    recentFindingsRaw,
-  ] = await Promise.all([
-    prisma.control.findMany({
-      include: {
-        framework: true,
+  // Avoid exhausting low-connection hosted Postgres pools (e.g. Supabase session mode)
+  // by reducing per-request query fan-out on the dashboard.
+  const controls = await prisma.control.findMany({
+    include: {
+      framework: true,
+    },
+    orderBy: [{ code: "asc" }],
+  });
+  const frameworks = await prisma.framework.findMany({
+    include: { controls: { select: { id: true } } },
+    orderBy: [{ key: "asc" }],
+  });
+  const findingsSummary = await prisma.finding.findMany({
+    select: {
+      controlId: true,
+      status: true,
+      risk: true,
+      evidenceLinks: { select: { id: true } },
+    },
+  });
+  const controlResponsesSummary = await prisma.controlResponse.findMany({
+    select: {
+      controlId: true,
+      status: true,
+      risk: true,
+      _count: { select: { evidenceSubmissions: true } },
+    },
+  });
+  const recentAssessmentsRaw = await prisma.assessment.findMany({
+    take: 5,
+    orderBy: [{ updatedAt: "desc" }],
+    include: {
+      organization: true,
+      engagement: {
+        include: { customerOrg: true },
       },
-      orderBy: [{ code: "asc" }],
-    }),
-    prisma.framework.findMany({
-      include: { controls: { select: { id: true } } },
-      orderBy: [{ key: "asc" }],
-    }),
-    prisma.finding.findMany({
-      select: {
-        controlId: true,
-        status: true,
-        risk: true,
-        evidenceLinks: { select: { id: true } },
-      },
-    }),
-    prisma.controlResponse.findMany({
-      select: {
-        controlId: true,
-        status: true,
-        risk: true,
-        _count: { select: { evidenceSubmissions: true } },
-      },
-    }),
-    prisma.assessment.findMany({
-      take: 5,
-      orderBy: [{ updatedAt: "desc" }],
-      include: {
-        organization: true,
-        engagement: {
-          include: { customerOrg: true },
-        },
-        findings: { select: { status: true } },
-        controlResponses: { select: { status: true } },
-      },
-    }),
-    prisma.evidenceSubmission.findMany({
-      take: 5,
-      orderBy: [{ updatedAt: "desc" }],
-      include: {
-        controlResponse: {
-          include: {
-            control: {
-              include: {
-                framework: { select: { key: true } },
-              },
+      findings: { select: { status: true } },
+      controlResponses: { select: { status: true } },
+    },
+  });
+  const recentEvidenceSubmissionsRaw = await prisma.evidenceSubmission.findMany({
+    take: 5,
+    orderBy: [{ updatedAt: "desc" }],
+    include: {
+      controlResponse: {
+        include: {
+          control: {
+            include: {
+              framework: { select: { key: true } },
             },
-            assessment: {
-              include: {
-                organization: { select: { name: true } },
-              },
+          },
+          assessment: {
+            include: {
+              organization: { select: { name: true } },
             },
           },
         },
       },
-    }),
-    prisma.evidence.findMany({
-      take: 5,
-      orderBy: [{ createdAt: "desc" }],
-      include: {
-        control: {
-          include: {
-            framework: { select: { key: true } },
-          },
+    },
+  });
+  const recentLegacyEvidenceRaw = await prisma.evidence.findMany({
+    take: 5,
+    orderBy: [{ createdAt: "desc" }],
+    include: {
+      control: {
+        include: {
+          framework: { select: { key: true } },
         },
       },
-    }),
-    prisma.controlResponse.findMany({
-      take: 6,
-      orderBy: [{ updatedAt: "desc" }],
-      include: {
-        control: {
-          include: {
-            framework: { select: { key: true } },
-          },
-        },
-        assessment: {
-          include: {
-            organization: { select: { name: true } },
-          },
+    },
+  });
+  const recentControlResponsesRaw = await prisma.controlResponse.findMany({
+    take: 6,
+    orderBy: [{ updatedAt: "desc" }],
+    include: {
+      control: {
+        include: {
+          framework: { select: { key: true } },
         },
       },
-    }),
-    prisma.finding.findMany({
-      take: 6,
-      orderBy: [{ updatedAt: "desc" }],
-      include: {
-        control: {
-          include: {
-            framework: { select: { key: true } },
-          },
-        },
-        assessment: {
-          include: {
-            organization: { select: { name: true } },
-          },
+      assessment: {
+        include: {
+          organization: { select: { name: true } },
         },
       },
-    }),
-  ]);
+    },
+  });
+  const recentFindingsRaw = await prisma.finding.findMany({
+    take: 6,
+    orderBy: [{ updatedAt: "desc" }],
+    include: {
+      control: {
+        include: {
+          framework: { select: { key: true } },
+        },
+      },
+      assessment: {
+        include: {
+          organization: { select: { name: true } },
+        },
+      },
+    },
+  });
 
-  const [auditFindings, recentAuditActivityRaw] = await Promise.all([
-    activeOrganization
-      ? prisma.auditFinding.findMany({
-          where: { organizationId: activeOrganization.id },
-          include: {
-            control: { select: { code: true } },
-          },
-        })
-      : Promise.resolve([]),
-    activeOrganization
-      ? prisma.auditActivityLog.findMany({
-          where: { organizationId: activeOrganization.id },
-          include: {
-            control: { select: { code: true } },
-            evidence: { select: { title: true } },
-            auditFinding: { select: { title: true } },
-          },
-          orderBy: [{ createdAt: "desc" }],
-          take: 8,
-        })
-      : Promise.resolve([]),
-  ]);
+  const auditFindings = activeOrganization
+    ? await prisma.auditFinding.findMany({
+        where: { organizationId: activeOrganization.id },
+        include: {
+          control: { select: { code: true } },
+        },
+      })
+    : [];
+  const recentAuditActivityRaw = activeOrganization
+    ? await prisma.auditActivityLog.findMany({
+        where: { organizationId: activeOrganization.id },
+        include: {
+          control: { select: { code: true } },
+          evidence: { select: { title: true } },
+          auditFinding: { select: { title: true } },
+        },
+        orderBy: [{ createdAt: "desc" }],
+        take: 8,
+      })
+    : [];
 
   const aggregatedControlStates = aggregateControls([
     ...findingsSummary.map((row) => ({
