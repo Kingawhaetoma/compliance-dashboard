@@ -38,7 +38,9 @@ export default async function AssessmentsPage() {
   const inProgressCount = assessments.filter(
     (assessment) => assessment.status === "IN_PROGRESS"
   ).length;
-  const draftCount = assessments.filter((assessment) => assessment.status === "DRAFT").length;
+  const notStartedCount = assessments.filter(
+    (assessment) => assessment.status === "NOT_STARTED"
+  ).length;
 
   return (
     <PageStack>
@@ -86,7 +88,7 @@ export default async function AssessmentsPage() {
           <MetricCard
             label="In Progress"
             value={inProgressCount}
-            helper={`${draftCount} draft`}
+            helper={`${notStartedCount} not started`}
             icon={Clock3}
             tone="amber"
           />
