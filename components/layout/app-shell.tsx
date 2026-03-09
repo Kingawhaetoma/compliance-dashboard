@@ -33,14 +33,17 @@ export function AppShell({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Hydrate collapsed state from localStorage
+  // Hydrate collapsed state from localStorage after mount to avoid hydration mismatch
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
-      if (stored !== null) {
-        setSidebarCollapsed(stored === "true");
-      }
-    }
+    if (typeof window === "undefined") return;
+    const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+    if (stored === null) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      setSidebarCollapsed(stored === "true");
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const toggleSidebarCollapsed = () => {
@@ -83,8 +86,8 @@ export function AppShell({
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <Header title={title} />
-          <main className="flex-1 overflow-auto bg-slate-50 p-4 sm:p-6 lg:p-8">
-            {children}
+          <main className="flex-1 overflow-auto bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.06),transparent_40%),radial-gradient(circle_at_top_left,rgba(16,185,129,0.05),transparent_40%),#f8fafc] p-4 sm:p-6 lg:p-8">
+            <div className="mx-auto w-full max-w-[1600px]">{children}</div>
           </main>
         </div>
       </div>

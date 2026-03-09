@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { MetricCard, StatusBadge } from "@/components/compliance/dashboard-ui";
+import { PageCallout, PageHero, PageStack } from "@/components/compliance/page-chrome";
 import {
   Card,
   CardContent,
@@ -9,17 +11,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ClipboardCheck, Plus } from "lucide-react";
+import {
+  Building2,
+  ChevronRight,
+  ClipboardCheck,
+  Clock3,
+  Plus,
+} from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { CreateAssessmentDialog } from "@/components/assessments/create-assessment-dialog";
-
-const statusVariant = {
-  NOT_STARTED: "secondary",
-  IN_PROGRESS: "default",
-  COMPLETE: "outline",
-} as const;
 
 export default async function AssessmentsPage() {
   const [assessments, organizations] = await Promise.all([
@@ -33,29 +34,84 @@ export default async function AssessmentsPage() {
     prisma.organization.findMany({ select: { id: true, name: true } }),
   ]);
 
+  const completeCount = assessments.filter((assessment) => assessment.status === "COMPLETE").length;
+  const inProgressCount = assessments.filter(
+    (assessment) => assessment.status === "IN_PROGRESS"
+  ).length;
+  const notStartedCount = assessments.filter(
+    (assessment) => assessment.status === "NOT_STARTED"
+  ).length;
+
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-            Assessments
-          </h1>
-          <p className="mt-1 text-sm text-slate-600 sm:text-base">
-            View and manage your compliance assessments
-          </p>
-        </div>
-        {organizations.length > 0 && assessments.length > 0 && (
-          <CreateAssessmentDialog
-            organizations={organizations}
-            trigger={
-              <Button size="sm" className="shrink-0">
+    <PageStack>
+      <PageHero
+        badge="Assessment management"
+        badgeIcon={ClipboardCheck}
+        title="Assessments"
+        description="View and manage compliance assessments created from the wizard or legacy flows."
+        chips={[
+          { label: `${assessments.length} total assessments`, tone: "info" },
+          { label: `${organizations.length} organizations` },
+          { label: `${inProgressCount} in progress`, tone: "warning" },
+        ]}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" asChild className="shrink-0">
+              <Link href="/audits/new">
                 <Plus className="mr-2 size-4" />
-                Create Assessment
-              </Button>
-            }
+                Start New Audit
+              </Link>
+            </Button>
+            {organizations.length > 0 && assessments.length > 0 && (
+              <CreateAssessmentDialog
+                organizations={organizations}
+                trigger={
+                  <Button size="sm" variant="outline" className="shrink-0">
+                    Quick Create (Legacy)
+                  </Button>
+                }
+              />
+            )}
+          </div>
+        }
+      />
+
+      {assessments.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <MetricCard
+            label="Assessments"
+            value={assessments.length}
+            helper="All audit records in the workspace"
+            icon={ClipboardCheck}
+            tone="slate"
           />
-        )}
-      </div>
+          <MetricCard
+            label="In Progress"
+            value={inProgressCount}
+            helper={`${notStartedCount} not started`}
+            icon={Clock3}
+            tone="amber"
+          />
+          <MetricCard
+            label="Complete"
+            value={completeCount}
+            helper="Finished assessment workflows"
+            icon={ClipboardCheck}
+            tone="emerald"
+          />
+          <MetricCard
+            label="Organizations"
+            value={organizations.length}
+            helper="Customers/vendors available for assignment"
+            icon={Building2}
+            tone="sky"
+          />
+        </div>
+      ) : null}
+
+      <PageCallout tone="info">
+        Recommended workflow: use <Link href="/audits/new" className="font-semibold underline underline-offset-2">New Audit Wizard</Link> to choose customer, vendor, framework(s), and auto-generate the audit control scope. The legacy quick-create flow only creates an empty assessment shell.
+      </PageCallout>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {assessments.map((a) => {
           const total = a.findings.length;
@@ -70,18 +126,7 @@ export default async function AssessmentsPage() {
             >
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                 <CardTitle className="text-base text-slate-900">{a.name}</CardTitle>
-                <Badge
-                  variant="outline"
-                  className={
-                    a.status === "COMPLETE"
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      : a.status === "IN_PROGRESS"
-                        ? "border-blue-200 bg-blue-50 text-blue-700"
-                        : "border-slate-200 bg-slate-50 text-slate-600"
-                  }
-                >
-                  {a.status.replace("_", " ")}
-                </Badge>
+                <StatusBadge status={a.status} />
               </CardHeader>
               <CardContent>
                 <CardDescription className="mb-3 text-slate-600">
@@ -110,15 +155,12 @@ export default async function AssessmentsPage() {
           title="No assessments yet"
           description="Create your first assessment to start tracking compliance controls and evidence."
           action={
-            organizations.length > 0 ? (
-              <CreateAssessmentDialog
-                organizations={organizations}
-                trigger={<Button size="sm">Create Assessment</Button>}
-              />
-            ) : undefined
+            <Button size="sm" asChild>
+              <Link href="/audits/new">Start New Audit</Link>
+            </Button>
           }
         />
       )}
-    </div>
+    </PageStack>
   );
 }

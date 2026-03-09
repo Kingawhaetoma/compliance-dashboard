@@ -4,10 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  ClipboardPlus,
   ClipboardCheck,
   Shield,
   Gauge,
   FileCheck,
+  AlertTriangle,
+  Building2,
+  Users,
   X,
   PanelLeftClose,
   PanelLeft,
@@ -25,10 +29,15 @@ import {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/audits", label: "New Audit", icon: ClipboardPlus },
+  { href: "/customer", label: "Customer Audits", icon: Building2 },
+  { href: "/vendor", label: "Vendor Workspace", icon: Users },
   { href: "/frameworks", label: "Frameworks", icon: Shield },
   { href: "/controls", label: "Controls", icon: Gauge },
   { href: "/assessments", label: "Assessments", icon: ClipboardCheck },
   { href: "/evidence", label: "Evidence", icon: FileCheck },
+  { href: "/findings", label: "Findings", icon: AlertTriangle },
+  { href: "/security", label: "Security", icon: Shield }, 
 ];
 
 export function Sidebar() {

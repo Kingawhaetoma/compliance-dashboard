@@ -22,6 +22,10 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-brand: var(--brand);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -72,6 +76,10 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+  --brand: oklch(0.57 0.17 249.5);
+  --success: oklch(0.66 0.16 151.5);
+  --warning: oklch(0.76 0.16 79);
+  --danger: oklch(0.65 0.22 24);
   --sidebar: oklch(0.985 0.002 247.839);
   --sidebar-foreground: oklch(0.13 0.028 261.692);
   --sidebar-primary: oklch(0.21 0.034 264.665);
@@ -106,6 +114,10 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+  --brand: oklch(0.72 0.16 250);
+  --success: oklch(0.76 0.16 151);
+  --warning: oklch(0.84 0.14 82);
+  --danger: oklch(0.74 0.21 24);
   --sidebar: oklch(0.21 0.034 264.665);
   --sidebar-foreground: oklch(0.985 0.002 247.839);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -122,5 +134,19 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .grc-page-stack {
+    @apply space-y-6 sm:space-y-8;
+  }
+
+  .grc-surface {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  .grc-surface-subtle {
+    @apply rounded-2xl border border-slate-200 bg-slate-50/70;
   }
 }

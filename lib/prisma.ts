@@ -8,7 +8,14 @@ if (!connectionString) {
   throw new Error("DATABASE_URL environment variable is not set");
 }
 
-const adapter = new PrismaPg({ connectionString });
+const pgPoolMax = Number.parseInt(process.env.PG_POOL_MAX ?? "1", 10);
+const adapter = new PrismaPg({
+  connectionString,
+  // Keep the pool tiny by default for serverless + Supabase session mode to avoid max-client spikes.
+  max: Number.isFinite(pgPoolMax) && pgPoolMax > 0 ? pgPoolMax : 1,
+  idleTimeoutMillis: 10_000,
+  connectionTimeoutMillis: 10_000,
+});
 export const prisma =
   globalForPrisma.prisma ?? new PrismaClient({ adapter });
 

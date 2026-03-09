@@ -76,7 +76,7 @@ export function CreateAssessmentDialog({
           <DialogHeader>
             <DialogTitle>Create Assessment</DialogTitle>
             <DialogDescription>
-              Start a new compliance assessment for your organization.
+              Quick-create an empty assessment shell. For a full client/vendor workflow with framework scope generation, use the New Audit Wizard.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Card,
   CardContent,
@@ -7,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -30,7 +33,10 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <Card
-      className={`flex flex-col items-center justify-center border-slate-200 py-16 text-center ${className ?? ""}`}
+      className={cn(
+        "flex flex-col items-center justify-center border-slate-200 py-16 text-center shadow-sm",
+        className
+      )}
     >
       <CardHeader>
         <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-slate-100">
@@ -47,7 +53,7 @@ export function EmptyState({
         {action}
         {secondaryAction && (
           <Button variant="outline" size="sm" asChild>
-            <a href={secondaryAction.href}>{secondaryAction.label}</a>
+            <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
           </Button>
         )}
       </CardContent>
